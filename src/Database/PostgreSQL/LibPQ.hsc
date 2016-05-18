@@ -294,7 +294,9 @@ connectdb conninfo =
            else do
              noticeBuffer <- newMVar nullPtr
              connection <- newForeignPtrOnce connPtr (pqfinish connPtr noticeBuffer)
-             return $! Conn connection noticeBuffer
+             let !conn = Conn connection noticeBuffer
+             withConn conn c_PQsocket >>= \fd -> putStrLn (show ("LIBPQ fd"::String, fd))
+             return $! conn
 
 -- | Make a connection to the database server in a nonblocking manner.
 connectStart :: B.ByteString -- ^ Connection Info
